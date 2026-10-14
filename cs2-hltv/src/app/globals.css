@@ -1,0 +1,113 @@
+@import "tailwindcss";
+
+/* ============================================================
+   DESIGN TOKENS — монохромная macOS-палитра (Light / Dark)
+   Переключение темы: класс .dark на <html> (управляется из
+   store/theme.ts, см. ThemeToggle)
+   ============================================================ */
+
+/* Включаем manual dark mode по классу, а не по prefers-color-scheme */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* ---- Light mode (macOS Sonoma light) ---- */
+  --background: #f5f5f7;            /* фирменный apple-серый фон */
+  --foreground: #1d1d1f;
+  --card: rgba(255, 255, 255, 0.72);/* glassmorphism-поверхность */
+  --card-solid: #ffffff;
+  --border: rgba(128, 128, 128, 0.2);
+  --muted: #86868b;
+  --hover: rgba(120, 120, 128, 0.08);
+  --shadow: 0 8px 30px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+  --live-dot: #1d1d1f;              /* LIVE без цвета — пульсирует прозрачностью */
+}
+
+.dark {
+  /* ---- Dark mode (macOS Sequoia dark) ---- */
+  --background: #0a0a0b;
+  --foreground: #f5f5f7;
+  --card: rgba(28, 28, 30, 0.72);
+  --card-solid: #1c1c1e;
+  --border: rgba(128, 128, 128, 0.2);
+  --muted: #98989d;
+  --hover: rgba(120, 120, 128, 0.14);
+  --shadow: 0 8px 30px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.3);
+  --live-dot: #f5f5f7;
+}
+
+/* ---- Маппинг токенов в Tailwind v4 utilities ---- */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-solid: var(--card-solid);
+  --color-border-subtle: var(--border);
+  --color-muted: var(--muted);
+  --color-hover: var(--hover);
+
+  /* SF Pro — системный стек Apple; Inter как веб-фоллбэк */
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+    "Inter", "Segoe UI", Roboto, sans-serif;
+  --font-mono: "SF Mono", ui-monospace, "JetBrains Mono", Menlo, monospace;
+
+  --radius-macos: 14px; /* радиус карточек как в macOS Sonoma/Sequoia */
+}
+
+/* Плавные переходы между темами для всех элементов */
+* {
+  transition-property: background-color, border-color, color, box-shadow;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); /* apple ease-out */
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ============================================================
+   УТИЛИТАРНЫЕ КЛАССЫ СТИЛЯ macOS
+   ============================================================ */
+@utility glass {
+  background: var(--card);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+@utility glass-strong {
+  background: var(--card);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+/* Тонкий скроллбар в стиле macOS */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.3);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(128, 128, 128, 0.5); }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* Пульсация индикатора LIVE (монохром) */
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.35; transform: scale(0.8); }
+}
+.live-dot { animation: live-pulse 1.4s ease-in-out infinite; }
+
+/* Появление строк/карточек — мягкий fade-up */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up { animation: fade-up 0.4s cubic-bezier(0.4, 0, 0.2, 1) both; }
